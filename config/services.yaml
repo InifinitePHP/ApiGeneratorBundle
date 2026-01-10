@@ -1,0 +1,5 @@
+services:
+  RehArk\ApiGeneratorBundle\:
+    resource: '../src/*'
+    exclude:
+      - '../src/DependencyInjection/'

@@ -1,0 +1,22 @@
+parameters:
+    level: 6
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+
+    excludePaths:
+        - src/Templates
+        - vendor/*
+        - tests/bootstrap.php
+
+    ignoreErrors:
+        -
+            message: '#Property .*::\$id.* is never assigned#'
+            paths:
+                - src/Entity/*
+
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon

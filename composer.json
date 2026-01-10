@@ -1,0 +1,23 @@
+{
+    "name": "rehark/api-generator-bundle",
+    "description": "A Symfony-based API to generate resources very fast.",
+    "type": "symfony-bundle",
+    "require-dev": {
+        "phpunit/phpunit": "^11.5",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-symfony": "^2.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Rehark\\ApiGeneratorBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vincent CLERC",
+            "email": "contact@vincent-clerc.net"
+        }
+    ],
+    "require": {}
+}

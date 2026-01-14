@@ -2,9 +2,10 @@
 
 namespace App\Api\Controller{{NAMESPACE}};
 
-use App\Utils\CoreApiAction;
+use Rehark\ApiGeneratorBundle\Core\Actions\CoreApiAction;
+use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
 
-class {{NAME}}Controller
+class {{NAME}}Controller extends ApiController
 {
 
     public static string $version = 'v1';

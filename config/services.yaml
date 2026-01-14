@@ -1,5 +1,14 @@
 services:
-  RehArk\ApiGeneratorBundle\:
+
+  _defaults:
+      autowire: true
+      autoconfigure: true
+
+  Rehark\ApiGeneratorBundle\:
     resource: '../src/*'
     exclude:
       - '../src/DependencyInjection/'
+
+  RehArk\ApiGeneratorBundle\Command\:
+    resource: '../src/Command'
+    tags: ['console.command']

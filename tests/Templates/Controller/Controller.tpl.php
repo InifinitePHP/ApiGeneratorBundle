@@ -1,0 +1,1 @@
+Controller {{NAME}} {{NAMESPACE}} {{ROUTE}} {{ENTITY}}

@@ -49,8 +49,11 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         }
     }
 
-    private function invokeGenerateFiles(MakeApiResourceCommand $command, string $entityName, bool $force = false)
-    {
+    private function invokeGenerateFiles(
+        MakeApiResourceCommand $command,
+        string $entityName,
+        bool $force = false
+    ): mixed {
         $method = PrivateAccessor::getMethod(MakeApiResourceCommand::class, 'generateFiles');
         $method->setAccessible(true);
 
@@ -97,6 +100,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         foreach ($expectedFiles as $file) {
             $this->assertFileExists($file);
             $content = file_get_contents($file);
+            $this->assertNotFalse($content);
             $this->assertStringContainsString('User', $content);
         }
     }
@@ -120,6 +124,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         foreach ($expectedFiles as $file) {
             $this->assertFileExists($file);
             $content = file_get_contents($file);
+            $this->assertNotFalse($content);
             $this->assertStringContainsString('User', $content);
         }
     }
@@ -137,6 +142,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         $this->invokeGenerateFiles($command, 'User', true);
 
         $content = file_get_contents($file);
+        $this->assertNotFalse($content);
         $this->assertStringContainsString('User', $content);
         $this->assertNotSame('OldContent', $content);
     }

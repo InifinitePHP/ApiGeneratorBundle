@@ -1,0 +1,1 @@
+Input {{NAME}} {{NAMESPACE}} {{ROUTE}} {{ENTITY}}

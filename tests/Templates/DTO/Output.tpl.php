@@ -1,0 +1,1 @@
+Output {{NAME}} {{NAMESPACE}} {{ROUTE}} {{ENTITY}}

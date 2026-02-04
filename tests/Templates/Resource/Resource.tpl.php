@@ -1,0 +1,1 @@
+Resource {{NAME}} {{NAMESPACE}} {{ROUTE}} {{ENTITY}}

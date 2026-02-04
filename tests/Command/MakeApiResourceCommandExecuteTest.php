@@ -63,6 +63,7 @@ class MakeApiResourceCommandExecuteTest extends TestCase
         foreach ($expectedFiles as $file) {
             $this->assertFileExists($file);
             $content = file_get_contents($file);
+            $this->assertNotFalse($content);
             $this->assertStringContainsString($expectedName, $content);
         }
     }

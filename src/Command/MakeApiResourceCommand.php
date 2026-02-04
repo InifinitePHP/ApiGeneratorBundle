@@ -2,12 +2,14 @@
 
 namespace Rehark\ApiGeneratorBundle\Command;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\String\UnicodeString;
@@ -56,7 +58,18 @@ class MakeApiResourceCommand extends Command
         OutputInterface $output
     ): int {
 
-        $name = ltrim($input->getArgument('name'), '/');
+        $name_arg = $input->getArgument('name');
+        $force_arg = $input->getOption('force');
+
+        if(!is_string($name_arg)) {
+            throw new InvalidArgumentException('Argument name should be a string');
+        }
+
+        if(!is_bool($force_arg)) {
+            throw new InvalidArgumentException('Argument force should be a boolean');
+        }
+
+        $name = ltrim($name_arg, '/');
         $projectDir = $this->kernel->getProjectDir();
 
         $entityPath = "$projectDir/src/Entity/$name.php";
@@ -67,9 +80,8 @@ class MakeApiResourceCommand extends Command
             return Command::FAILURE;
         }
 
-        $force = $input->getOption('force');
 
-        $this->generateFiles($filesystem, $projectDir, $name, $force, $output);
+        $this->generateFiles($filesystem, $projectDir, $name, $force_arg, $output);
 
         $output->writeln("<info>✔ Resource $name generated successfully in $projectDir!</info>");
         return Command::SUCCESS;
@@ -113,6 +125,12 @@ class MakeApiResourceCommand extends Command
             }
 
             $content = file_get_contents($templateMap[$type]);
+
+            if(!$content) {
+                // TODO : preciser plus l'erreur
+                throw new FileNotFoundException();
+            }
+
             $content = str_replace(['{{NAMESPACE}}', '{{NAME}}'], [$namespace, $basename], $content);
 
             if ($type === 'Controller') {

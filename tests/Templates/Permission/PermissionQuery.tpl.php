@@ -1,0 +1,1 @@
+PermissionQuery {{NAME}} {{NAMESPACE}} {{ROUTE}} {{ENTITY}}

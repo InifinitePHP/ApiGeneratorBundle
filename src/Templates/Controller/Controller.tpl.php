@@ -19,11 +19,11 @@ class {{NAME}}Controller extends ApiController
     public static function actions(): array
     {
         return [
-            CoreApiAction::LIST->Action(),
-            CoreApiAction::SHOW->Action(),
-            CoreApiAction::CREATE->Action(),
-            CoreApiAction::UPDATE->Action(),
-            CoreApiAction::DELETE->Action()
+            new ApiAction('list', ['GET'], ''),
+            new ApiAction('show', ['GET'], '/{id}'),
+            new ApiAction('create', ['POST'], ''),
+            new ApiAction('update', ['PATCH'], '/{id}'),
+            new ApiAction('delete', ['DELETE'], '/{id}'),
         ];
     }
 }

@@ -17,7 +17,7 @@ class EntityBuilder {
     public function build(
         string $class,
         object $data,
-        int $remainingDepth = 5,
+        int $remainingDepth = 2,
         int $maxArraySize = 10,
         array $trace = []
     ): Object {

@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 abstract class ApiController extends AbstractController implements ApiControllerInterface
 {  
 
-    protected int $remainingDepth = 5;
+    protected int $remainingDepth = 2;
     protected int $maxArraySize = 10;
 
     public static abstract function actions(): array;

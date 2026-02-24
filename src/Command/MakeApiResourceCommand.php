@@ -105,10 +105,7 @@ class MakeApiResourceCommand extends Command
     ): void {
 
         $templatesDir = __DIR__ . '/../Templates';
-        $templateTypes = ['Controller', 'Input', 'Output', 'PermissionQuery', 'Resource'];
-
-        $fileMap = $this->getFilesPathMap($projectDir, $name);
-        $templateMap = $this->getTemplatesPathMap($templatesDir);
+        $templateTypes = ['Controller', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
 
         $parts = explode('/', $name);
         $basename = array_pop($parts);
@@ -116,6 +113,10 @@ class MakeApiResourceCommand extends Command
         $entity = str_replace('/', '\\', $name);
         $route = (new UnicodeString($basename))->camel()->snake()->replace('_', '-')->lower()->toString();
 
+        
+        $fileMap = $this->getFilesPathMap($projectDir, $namespace, $basename);
+        $templateMap = $this->getTemplatesPathMap($templatesDir);
+        
         foreach ($templateTypes as $type) {
             $filePath = $fileMap[$type];
 
@@ -153,7 +154,8 @@ class MakeApiResourceCommand extends Command
     ): array {
         return [
             'Controller' => "$templatesDir/Controller/Controller.tpl.php",
-            'Input' => "$templatesDir/DTO/Input.tpl.php",
+            'CreateInput' => "$templatesDir/DTO/CreateInput.tpl.php",
+            'UpdateInput' => "$templatesDir/DTO/UpdateInput.tpl.php",
             'Output' => "$templatesDir/DTO/Output.tpl.php",
             'PermissionQuery' => "$templatesDir/Permission/PermissionQuery.tpl.php",
             'Resource' => "$templatesDir/Resource/Resource.tpl.php",
@@ -169,14 +171,19 @@ class MakeApiResourceCommand extends Command
      */
     private function getFilesPathMap(
         string $projectDir,
-        string $name
+        string $namespace,
+        string $entity,
     ): array {
+
+        $namespace = str_replace('\\' , '/', $namespace);
+
         return [
-            'Controller' => "$projectDir/src/Api/Controller/{$name}Controller.php",
-            'Input' => "$projectDir/src/Api/DTO/{$name}Input.php",
-            'Output' => "$projectDir/src/Api/DTO/{$name}Output.php",
-            'PermissionQuery' => "$projectDir/src/Api/Permission/{$name}PermissionQuery.php",
-            'Resource' => "$projectDir/src/Api/Resource/{$name}Resource.php",
+            'Controller' => "$projectDir/src/Api/Controller{$namespace}/{$entity}Controller.php",
+            'CreateInput' => "$projectDir/src/Api/DTO{$namespace}/Create{$entity}Input.php",
+            'UpdateInput' => "$projectDir/src/Api/DTO{$namespace}/Update{$entity}Input.php",
+            'Output' => "$projectDir/src/Api/DTO{$namespace}/{$entity}Output.php",
+            'PermissionQuery' => "$projectDir/src/Api/Permission{$namespace}/{$entity}PermissionQuery.php",
+            'Resource' => "$projectDir/src/Api/Resource{$namespace}/{$entity}Resource.php",
         ];
     }
 }

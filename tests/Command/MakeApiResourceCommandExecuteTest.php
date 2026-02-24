@@ -32,13 +32,14 @@ class MakeApiResourceCommandExecuteTest extends TestCase
 
     private function createTemplates(): string
     {
-        $templatesDir = __DIR__ . '/../Templates';
-        $types = ['Controller', 'Input', 'Output', 'PermissionQuery', 'Resource'];
+        $templatesDir = $this->tmpDir . '/Templates';
+        $types = ['Controller', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
 
         foreach ($types as $type) {
             $path = match($type) {
                 'Controller' => "$templatesDir/Controller/Controller.tpl.php",
-                'Input' => "$templatesDir/DTO/Input.tpl.php",
+                'CreateInput' => "$templatesDir/DTO/CreateInput.tpl.php",
+                'UpdateInput' =>  "$templatesDir/DTO/UpdateInput.tpl.php",
                 'Output' => "$templatesDir/DTO/Output.tpl.php",
                 'PermissionQuery' => "$templatesDir/Permission/PermissionQuery.tpl.php",
                 'Resource' => "$templatesDir/Resource/Resource.tpl.php",
@@ -54,7 +55,8 @@ class MakeApiResourceCommandExecuteTest extends TestCase
     {
         $expectedFiles = [
             "$this->tmpDir/src/Api/Controller/UserController.php",
-            "$this->tmpDir/src/Api/DTO/UserInput.php",
+            "$this->tmpDir/src/Api/DTO/CreateUserInput.php",
+            "$this->tmpDir/src/Api/DTO/UpdateUserInput.php",
             "$this->tmpDir/src/Api/DTO/UserOutput.php",
             "$this->tmpDir/src/Api/Permission/UserPermissionQuery.php",
             "$this->tmpDir/src/Api/Resource/UserResource.php",

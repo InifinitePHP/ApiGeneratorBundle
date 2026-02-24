@@ -2,7 +2,7 @@
 
 namespace App\Api\Controller{{NAMESPACE}};
 
-use Rehark\ApiGeneratorBundle\Core\Actions\CoreApiAction;
+use Rehark\ApiGeneratorBundle\Core\Actions\ApiAction;
 use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
 
 class {{NAME}}Controller extends ApiController

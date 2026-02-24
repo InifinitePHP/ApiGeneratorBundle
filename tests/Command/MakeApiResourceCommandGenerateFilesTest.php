@@ -62,6 +62,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
             $this->filesystem,
             $this->tmpDir,
             $entityName,
+            $entityName,
             $force,
             new NullOutput()
         );

@@ -4,12 +4,14 @@ namespace Rehark\ApiGeneratorBundle\Core\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use PhpParser\Node\Expr\Cast\Object_;
+use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
 use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class ApiController extends AbstractController implements ApiControllerInterface
 {  
@@ -22,16 +24,43 @@ abstract class ApiController extends AbstractController implements ApiController
 
     public function __construct(
         protected EntityManagerInterface $em,
-        protected RequestStack $request
+        protected RequestStack $request,
+        protected SerializerInterface $serializer,
+        protected ValidatorInterface $validator,
+        protected Mapper $mapper,
     ) {}
 
-    protected function getRequestBody(): object
-    {
-        $data = json_decode($this->request->getCurrentRequest()?->getContent() ?? '{}');
-        return is_object($data) ? $data : new \stdClass();
+    protected function buildDto(
+        string $inputDtoClass
+    ): object {
+
+        $input = $this->request->getCurrentRequest()?->getContent() ?? '{}';
+        /** @var object $inputDto */
+        $inputDto = new $inputDtoClass();
+        
+        // Appel sans assigner le retour (in-place population)
+        $this->serializer->deserialize($input, $inputDto::class, 'json', [
+            'object_to_populate' => $inputDto
+        ]);
+
+        $violations = $this->validator->validate($inputDto);
+        if (count($violations) > 0) {
+            throw new UnprocessableEntityHttpException();
+        }
+
+        if (!($inputDto instanceof $inputDtoClass)) {
+            throw new \RuntimeException('DTO creation failed');
+        }
+
+        return $inputDto;
     }
 
-    public function list() : JsonResponse {
+    public function list(
+        string $inputDtoClass,
+        string $outputDtoClass
+    ) : JsonResponse {
+
+        $input = $this->buildDto($inputDtoClass);
 
         $class = $this->getEntityClass();
 
@@ -39,16 +68,21 @@ abstract class ApiController extends AbstractController implements ApiController
         $repo = $this->em->getRepository($class);
         $entities = $repo->findAll();
 
-        return new JsonResponse($entities);
+        return new JsonResponse([
+            'data' => $this->mapper->fromArray($entities, $outputDtoClass)
+        ]);
     }
 
     public function show() : JsonResponse {
         return new JsonResponse(1);
     }
 
-    public function create() : JsonResponse {
+    public function create(
+        string $inputDtoClass,
+        string $outputDtoClass
+    ) : JsonResponse {
 
-        $input = $this->getRequestBody();
+        $input = $this->buildDto($inputDtoClass);
 
         $entity = (new EntityBuilder())->build(
             $this->getEntityClass(),
@@ -67,7 +101,9 @@ abstract class ApiController extends AbstractController implements ApiController
             );
         }
 
-        return new JsonResponse($entity);
+        return new JsonResponse([
+            'data' => $this->mapper->fromEntity($entity, $outputDtoClass)
+        ]);
     }
 
     public function update() : JsonResponse {

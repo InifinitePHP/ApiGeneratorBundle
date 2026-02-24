@@ -62,9 +62,6 @@ class MakeApiResourceCommand extends Command
         $name_arg = $input->getArgument('name');
         $new_name_arg = $input->getArgument('new-name') ?? $name_arg;
         $force_arg = $input->getOption('force');
-        
-        $name_arg = str_replace('\\', '/', $name_arg);
-        $new_name_arg = str_replace('\\', '/', $new_name_arg);
 
         if(!is_string($name_arg)) {
             throw new InvalidArgumentException('Argument name should be a string');
@@ -77,6 +74,9 @@ class MakeApiResourceCommand extends Command
         if(!is_bool($force_arg)) {
             throw new InvalidArgumentException('Argument force should be a boolean');
         }
+
+        $name_arg = str_replace('\\', '/', $name_arg);
+        $new_name_arg = str_replace('\\', '/', $new_name_arg);
 
         $entityName = ltrim($name_arg, '/');
         $rssName = ltrim($new_name_arg, '/');
@@ -101,7 +101,8 @@ class MakeApiResourceCommand extends Command
      *
      * @param Filesystem $filesystem
      * @param string $projectDir
-     * @param string $name
+     * @param string $entityName
+     * @param string $rssName
      * @param bool $force Whether to overwrite existing files
      * @param OutputInterface $output
      */
@@ -176,7 +177,8 @@ class MakeApiResourceCommand extends Command
      * Returns an array mapping template types to target file paths in the project.
      *
      * @param string $projectDir
-     * @param string $name
+     * @param string $namespace
+     * @param string $entity
      * @return array<string, string>
      */
     private function getFilesPathMap(

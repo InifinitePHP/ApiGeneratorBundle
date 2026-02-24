@@ -160,12 +160,7 @@ class EntityBuilder {
             throw new EntityBuildingException('Array size to big !', $trace);
         }
 
-        try {
-            $method = $this->getAdder($entity, $key);
-        } catch (\Throwable $th) {
-            throw new MethodException('Each array or collection should implement add function, in {class}::{method} required.', $entity, $key);
-        }
-
+        $method = $this->getAdder($entity, $key);
         $propertyType = $this->getMethodType($entity, $method);
         
         foreach($data as $value) {
@@ -179,7 +174,7 @@ class EntityBuilder {
                 throw new EntityBuildingException('Array of Array is not supported.', $trace);
             }
             
-            if(!in_array($propertyType, ["int", "float", "string", "bool", "null"])) {
+            if(!in_array($propertyType, ['int', 'float', 'string', 'bool', 'null', 'array'])) {
                 $nestedValue = $this->build($propertyType, (object) $value, $remainingDepth - 1, $maxArraySize, $trace);
             }
             

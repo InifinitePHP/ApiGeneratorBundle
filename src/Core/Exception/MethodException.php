@@ -12,7 +12,7 @@ class MethodException extends BadRequestHttpException {
         string $method
     ) {
         $class = !is_string($class_or_object) ? get_class($class_or_object) : $class_or_object;
-        $output = str_replace(['{class}', '{methode}'], [$class, $method], $message);
+        $output = str_replace(['{class}', '{method}'], [$class, $method], $message);
         parent::__construct($output);
     }
 }

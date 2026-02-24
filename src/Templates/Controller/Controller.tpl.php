@@ -4,6 +4,9 @@ namespace App\Api\Controller{{NAMESPACE}};
 
 use Rehark\ApiGeneratorBundle\Core\Actions\ApiAction;
 use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
+use App\Api\DTO{{NAMESPACE}}\Create{{NAME}}Input;
+use App\Api\DTO{{NAMESPACE}}\Update{{NAME}}Input;
+use App\Api\DTO{{NAMESPACE}}\{{NAME}}Output;
 
 class {{NAME}}Controller extends ApiController
 {
@@ -19,11 +22,11 @@ class {{NAME}}Controller extends ApiController
     public static function actions(): array
     {
         return [
-            new ApiAction('list', ['GET'], ''),
-            new ApiAction('show', ['GET'], '/{id}'),
-            new ApiAction('create', ['POST'], ''),
-            new ApiAction('update', ['PATCH'], '/{id}'),
-            new ApiAction('delete', ['DELETE'], '/{id}'),
+            new ApiAction('list', ['GET'], '', null, {{NAME}}Output::class),
+            new ApiAction('show', ['GET'], '/{id}', null, {{NAME}}Output::class),
+            new ApiAction('create', ['POST'], '', Create{{NAME}}Input::class, {{NAME}}Output::class),
+            new ApiAction('update', ['PATCH'], '/{id}', Update{{NAME}}Input::class, {{NAME}}Output::class),
+            new ApiAction('delete', ['DELETE'], '/{id}', null, {{NAME}}Output::class),
         ];
     }
 }

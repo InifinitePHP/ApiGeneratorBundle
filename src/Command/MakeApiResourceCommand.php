@@ -43,6 +43,7 @@ class MakeApiResourceCommand extends Command
     {
         $this
             ->addArgument('name', InputArgument::REQUIRED, 'The name of the Entity (e.g. User)')
+            ->addArgument('new-name', InputArgument::OPTIONAL, 'The name of the Ressource (default Entity)')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Overwrite existing files if they already exist');
     }
 
@@ -59,9 +60,17 @@ class MakeApiResourceCommand extends Command
     ): int {
 
         $name_arg = $input->getArgument('name');
+        $new_name_arg = $input->getArgument('new-name') ?? $name_arg;
         $force_arg = $input->getOption('force');
+        
+        $name_arg = str_replace('\\', '/', $name_arg);
+        $new_name_arg = str_replace('\\', '/', $new_name_arg);
 
         if(!is_string($name_arg)) {
+            throw new InvalidArgumentException('Argument name should be a string');
+        }
+
+        if(!is_string($new_name_arg)) {
             throw new InvalidArgumentException('Argument name should be a string');
         }
 
@@ -69,21 +78,21 @@ class MakeApiResourceCommand extends Command
             throw new InvalidArgumentException('Argument force should be a boolean');
         }
 
-        $name = ltrim($name_arg, '/');
+        $entityName = ltrim($name_arg, '/');
+        $rssName = ltrim($new_name_arg, '/');
         $projectDir = $this->kernel->getProjectDir();
 
-        $entityPath = "$projectDir/src/Entity/$name.php";
+        $entityPath = "$projectDir/src/Entity/$entityName.php";
         $filesystem = new Filesystem();
 
         if (!$filesystem->exists($entityPath)) {
-            $output->writeln("<error>Entity $name does not exist in $projectDir/src/Entity/</error>");
+            $output->writeln("<error>Entity $entityName does not exist in $projectDir/src/Entity/</error>");
             return Command::FAILURE;
         }
 
+        $this->generateFiles($filesystem, $projectDir, $entityName, $rssName, $force_arg, $output);
 
-        $this->generateFiles($filesystem, $projectDir, $name, $force_arg, $output);
-
-        $output->writeln("<info>✔ Resource $name generated successfully in $projectDir!</info>");
+        $output->writeln("<info>✔ Resource $entityName generated successfully in $projectDir!</info>");
         return Command::SUCCESS;
     }
 
@@ -99,7 +108,8 @@ class MakeApiResourceCommand extends Command
     private function generateFiles(
         Filesystem $filesystem,
         string $projectDir,
-        string $name,
+        string $entityName,
+        string $rssName,
         bool $force,
         OutputInterface $output
     ): void {
@@ -107,14 +117,14 @@ class MakeApiResourceCommand extends Command
         $templatesDir = __DIR__ . '/../Templates';
         $templateTypes = ['Controller', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
 
-        $parts = explode('/', $name);
-        $basename = array_pop($parts);
-        $namespace = $parts ? '\\' . implode('\\', $parts) : '';
-        $entity = str_replace('/', '\\', $name);
-        $route = (new UnicodeString($basename))->camel()->snake()->replace('_', '-')->lower()->toString();
-
+        $rssParts = explode('/', $rssName);
+        $rssBasename = array_pop($rssParts);
+        $rssNamespace = $rssParts ? '\\' . implode('\\', $rssParts) : '';
         
-        $fileMap = $this->getFilesPathMap($projectDir, $namespace, $basename);
+        $entity = str_replace('/', '\\', $entityName);
+        $route = (new UnicodeString($rssBasename))->camel()->snake()->replace('_', '-')->lower()->toString();
+
+        $fileMap = $this->getFilesPathMap($projectDir, $rssNamespace, $rssBasename);
         $templateMap = $this->getTemplatesPathMap($templatesDir);
         
         foreach ($templateTypes as $type) {
@@ -132,7 +142,7 @@ class MakeApiResourceCommand extends Command
                 throw new FileNotFoundException();
             }
 
-            $content = str_replace(['{{NAMESPACE}}', '{{NAME}}'], [$namespace, $basename], $content);
+            $content = str_replace(['{{NAMESPACE}}', '{{NAME}}'], [$rssNamespace, $rssBasename], $content);
 
             if ($type === 'Controller') {
                 $content = str_replace(['{{ROUTE}}', '{{ENTITY}}'], [$route, $entity], $content);

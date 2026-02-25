@@ -109,6 +109,12 @@ abstract class ApiController extends AbstractController implements ApiController
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
-        return new JsonResponse(1);
+
+        $this->em->remove($entity);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'data' => $this->mapper->fromEntity($entity, $outputClass)
+        ]);
     }
 }

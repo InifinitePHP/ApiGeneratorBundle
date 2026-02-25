@@ -33,11 +33,12 @@ class MakeApiResourceCommandExecuteTest extends TestCase
     private function createTemplates(): string
     {
         $templatesDir = $this->tmpDir . '/Templates';
-        $types = ['Controller', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
+        $types = ['Controller', 'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
 
         foreach ($types as $type) {
             $path = match($type) {
                 'Controller' => "$templatesDir/Controller/Controller.tpl.php",
+                'SearchInput' => "$templatesDir/DTO/SearchInput.tpl.php",
                 'CreateInput' => "$templatesDir/DTO/CreateInput.tpl.php",
                 'UpdateInput' =>  "$templatesDir/DTO/UpdateInput.tpl.php",
                 'Output' => "$templatesDir/DTO/Output.tpl.php",
@@ -55,6 +56,7 @@ class MakeApiResourceCommandExecuteTest extends TestCase
     {
         $expectedFiles = [
             "$this->tmpDir/src/Api/Controller/UserController.php",
+            "$this->tmpDir/src/Api/DTO/SearchUserInput.php",
             "$this->tmpDir/src/Api/DTO/CreateUserInput.php",
             "$this->tmpDir/src/Api/DTO/UpdateUserInput.php",
             "$this->tmpDir/src/Api/DTO/UserOutput.php",

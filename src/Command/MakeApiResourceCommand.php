@@ -116,7 +116,7 @@ class MakeApiResourceCommand extends Command
     ): void {
 
         $templatesDir = __DIR__ . '/../Templates';
-        $templateTypes = ['Controller', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
+        $templateTypes = ['Controller', 'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
 
         $rssParts = explode('/', $rssName);
         $rssBasename = array_pop($rssParts);
@@ -165,6 +165,7 @@ class MakeApiResourceCommand extends Command
     ): array {
         return [
             'Controller' => "$templatesDir/Controller/Controller.tpl.php",
+            'SearchInput' => "$templatesDir/DTO/SearchInput.tpl.php",
             'CreateInput' => "$templatesDir/DTO/CreateInput.tpl.php",
             'UpdateInput' => "$templatesDir/DTO/UpdateInput.tpl.php",
             'Output' => "$templatesDir/DTO/Output.tpl.php",
@@ -191,6 +192,7 @@ class MakeApiResourceCommand extends Command
 
         return [
             'Controller' => "$projectDir/src/Api/Controller{$namespace}/{$entity}Controller.php",
+            'SearchInput' => "$projectDir/src/Api/DTO{$namespace}/Search{$entity}Input.php",
             'CreateInput' => "$projectDir/src/Api/DTO{$namespace}/Create{$entity}Input.php",
             'UpdateInput' => "$projectDir/src/Api/DTO{$namespace}/Update{$entity}Input.php",
             'Output' => "$projectDir/src/Api/DTO{$namespace}/{$entity}Output.php",

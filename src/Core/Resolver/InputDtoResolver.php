@@ -4,7 +4,7 @@ namespace Rehark\ApiGeneratorBundle\Core\Resolver;
 
 use Rehark\ApiGeneratorBundle\Core\DTO\DefaultInputDto;
 use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
-use stdClass;
+use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -29,10 +29,14 @@ class InputDtoResolver implements ValueResolverInterface {
         ArgumentMetadata $argument
     ): iterable {
 
-        if ($argument->getType() !== InputDtoInterface::class) {
+        if (
+            $argument->getType() !== InputDtoInterface::class
+            && $argument->getType() !== SearchDtoInterface::class
+        ) {
             return [];
         }
-        
+            
+
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
             return [];
         }

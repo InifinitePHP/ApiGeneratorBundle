@@ -4,6 +4,7 @@ namespace App\Api\Controller{{NAMESPACE}};
 
 use Rehark\ApiGeneratorBundle\Core\Actions\ApiAction;
 use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
+use App\Api\DTO{{NAMESPACE}}\Search{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Create{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Update{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\{{NAME}}Output;
@@ -23,7 +24,7 @@ class {{NAME}}Controller extends ApiController
     public static function actions(): array
     {
         return [
-            new ApiAction('list', ['GET'], '', null, {{NAME}}Output::class),
+            new ApiAction('search', ['POST'], '/search', Search{{NAME}}Input::class, {{NAME}}Output::class),
             new ApiAction('show', ['GET'], '/{id}', null, {{NAME}}Output::class, [
                 'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
             ]),

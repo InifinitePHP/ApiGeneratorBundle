@@ -5,6 +5,7 @@ namespace Rehark\ApiGeneratorBundle\Core\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
+use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
 use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
 use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
@@ -29,16 +30,17 @@ abstract class ApiController extends AbstractController implements ApiController
         protected Mapper $mapper,
     ) {}
 
-    public function list(
-        InputDtoInterface $input,
+    public function search(
+        SearchDtoInterface $input,
         ?string $outputClass = null,
     ) : JsonResponse {
 
         /** @var class-string $class */
         $class = $this->getEntityClass();
 
-        $index = isset($input->index) ? (int) $input->index : 1;
-        $limit = isset($input->limit) ? (int) $input->limit : 20;
+        $index = $input->getIndex();
+        $limit = $input->getLimit();
+
         $startAt = ($index - 1) * $limit;
         
         $qb = $this->em->createQueryBuilder()

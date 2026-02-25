@@ -12,3 +12,6 @@ services:
   RehArk\ApiGeneratorBundle\Command\:
     resource: '../src/Command'
     tags: ['console.command']
+
+  RehArk\ApiGeneratorBundle\Core\Resolver\InputDtoResolver:
+    tags: ['controller.argument_resolver']

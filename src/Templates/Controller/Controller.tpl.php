@@ -7,6 +7,7 @@ use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
 use App\Api\DTO{{NAMESPACE}}\Create{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Update{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\{{NAME}}Output;
+use \App\Entity\{{ENTITY}};
 
 class {{NAME}}Controller extends ApiController
 {
@@ -16,17 +17,23 @@ class {{NAME}}Controller extends ApiController
 
     protected function getEntityClass(): string
     {
-        return \App\Entity\{{ENTITY}}::class;
+        return {{NAME}}::class;
     }
 
     public static function actions(): array
     {
         return [
             new ApiAction('list', ['GET'], '', null, {{NAME}}Output::class),
-            new ApiAction('show', ['GET'], '/{id}', null, {{NAME}}Output::class),
+            new ApiAction('show', ['GET'], '/{id}', null, {{NAME}}Output::class, [
+                'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
+            ]),
             new ApiAction('create', ['POST'], '', Create{{NAME}}Input::class, {{NAME}}Output::class),
-            new ApiAction('update', ['PATCH'], '/{id}', Update{{NAME}}Input::class, {{NAME}}Output::class),
-            new ApiAction('delete', ['DELETE'], '/{id}', null, {{NAME}}Output::class),
+            new ApiAction('update', ['PATCH'], '/{id}', Update{{NAME}}Input::class, {{NAME}}Output::class, [
+                'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
+            ]),
+            new ApiAction('delete', ['DELETE'], '/{id}', null, {{NAME}}Output::class, [
+                'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
+            ]),
         ];
     }
 }

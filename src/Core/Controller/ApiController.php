@@ -4,12 +4,14 @@ namespace Rehark\ApiGeneratorBundle\Core\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
 use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
+use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -30,59 +32,47 @@ abstract class ApiController extends AbstractController implements ApiController
         protected Mapper $mapper,
     ) {}
 
-    protected function buildDto(
-        string $inputDtoClass
-    ): object {
-
-        $input = $this->request->getCurrentRequest()?->getContent() ?? '{}';
-        /** @var object $inputDto */
-        $inputDto = new $inputDtoClass();
-        
-        // Appel sans assigner le retour (in-place population)
-        $this->serializer->deserialize($input, $inputDto::class, 'json', [
-            'object_to_populate' => $inputDto
-        ]);
-
-        $violations = $this->validator->validate($inputDto);
-        if (count($violations) > 0) {
-            throw new UnprocessableEntityHttpException();
-        }
-
-        if (!($inputDto instanceof $inputDtoClass)) {
-            throw new \RuntimeException('DTO creation failed');
-        }
-
-        return $inputDto;
-    }
-
     public function list(
-        string $inputDtoClass,
-        string $outputDtoClass
+        InputDtoInterface $input,
+        ?string $outputClass = null,
     ) : JsonResponse {
 
-        $input = $this->buildDto($inputDtoClass);
-
+        /** @var class-string $class */
         $class = $this->getEntityClass();
 
-        /** @phpstan-ignore-next-line */
-        $repo = $this->em->getRepository($class);
-        $entities = $repo->findAll();
+        $index = isset($input->index) ? (int) $input->index : 1;
+        $limit = isset($input->limit) ? (int) $input->limit : 20;
+        $startAt = ($index - 1) * $limit;
+        
+        $qb = $this->em->createQueryBuilder()
+            ->select('e')
+            ->from($class, 'e')
+            ->setMaxResults($limit)
+            ->setFirstResult($startAt)
+        ;
 
+        /** @var array<int, object> $entities */
+        $entities = $qb->getQuery()->getResult();
+        
         return new JsonResponse([
-            'data' => $this->mapper->fromArray($entities, $outputDtoClass)
+            'data' => $this->mapper->fromArray($entities, $outputClass)
         ]);
     }
 
-    public function show() : JsonResponse {
-        return new JsonResponse(1);
+    public function show(
+        #[EntityParam] object $entity,
+        InputDtoInterface $input,
+        ?string $outputClass = null
+    ) : JsonResponse {
+        return new JsonResponse([
+            'data' => $this->mapper->fromEntity($entity, $outputClass)
+        ]);
     }
 
     public function create(
-        string $inputDtoClass,
-        string $outputDtoClass
+        InputDtoInterface $input,
+        ?string $outputClass = null
     ) : JsonResponse {
-
-        $input = $this->buildDto($inputDtoClass);
 
         $entity = (new EntityBuilder())->build(
             $this->getEntityClass(),
@@ -102,15 +92,23 @@ abstract class ApiController extends AbstractController implements ApiController
         }
 
         return new JsonResponse([
-            'data' => $this->mapper->fromEntity($entity, $outputDtoClass)
+            'data' => $this->mapper->fromEntity($entity, $outputClass)
         ]);
     }
 
-    public function update() : JsonResponse {
+    public function update(
+        #[EntityParam] object $entity,
+        InputDtoInterface $input,
+        ?string $outputClass = null
+    ) : JsonResponse {
         return new JsonResponse(1);
     }
 
-    Public function delete() : JsonResponse {
+    Public function delete(
+        #[EntityParam] object $entity,
+        InputDtoInterface $input,
+        ?string $outputClass = null
+    ) : JsonResponse {
         return new JsonResponse(1);
     }
 }

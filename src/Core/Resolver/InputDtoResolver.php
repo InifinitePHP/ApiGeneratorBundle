@@ -10,8 +10,6 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Serializer\SerializerInterface;
 
-use function PHPUnit\Framework\isObject;
-
 class InputDtoResolver implements ValueResolverInterface {
 
     public function __construct(

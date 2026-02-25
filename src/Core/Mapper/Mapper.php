@@ -2,27 +2,25 @@
 
 namespace Rehark\ApiGeneratorBundle\Core\Mapper;
 
+use Rehark\ApiGeneratorBundle\Core\DTO\OutputDtoInterface;
+
 class Mapper
 {
 
     /**
      * @param array<int, object> $entities
-     * @param ?string $class
+     * @param OutputDtoInterface $output
      * 
      * @return array<int, object>
      */
     public function fromArray(
         array $entities,
-        ?string $class
+        OutputDtoInterface $output
     ): array {
 
-        if(!$class) {
-            return $entities;
-        }
-
         return array_map(
-            function ($entity) use ($class) {
-                return $this->fromEntity($entity, $class);
+            function ($entity) use ($output) {
+                return $this->fromEntity($entity, $output);
             },
             $entities
         );
@@ -30,20 +28,14 @@ class Mapper
 
     /**
      * @param object $entity
-     * @param ?string $class
+     * @param OutputDtoInterface $output
      * 
      * @return object
      */
     public function fromEntity(
         object $entity,
-        ?string $class
+        OutputDtoInterface $output
     ): object {
-
-        if(!$class) {
-            return $entity;
-        }
-
-        $output = new $class();
 
         foreach (get_object_vars($output) as $key => $value) {
             $entityMethod = 'get' . ucfirst($key);

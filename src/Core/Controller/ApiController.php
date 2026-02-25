@@ -5,6 +5,7 @@ namespace Rehark\ApiGeneratorBundle\Core\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
+use Rehark\ApiGeneratorBundle\Core\DTO\OutputDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
 use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
@@ -32,7 +33,7 @@ abstract class ApiController extends AbstractController implements ApiController
 
     public function search(
         SearchDtoInterface $input,
-        ?string $outputClass = null,
+        OutputDtoInterface $outputClass
     ) : JsonResponse {
 
         /** @var class-string $class */
@@ -61,7 +62,7 @@ abstract class ApiController extends AbstractController implements ApiController
     public function show(
         #[EntityParam] object $entity,
         InputDtoInterface $input,
-        ?string $outputClass = null
+        OutputDtoInterface $outputClass
     ) : JsonResponse {        
         return new JsonResponse([
             'data' => $this->mapper->fromEntity($entity, $outputClass)
@@ -70,7 +71,7 @@ abstract class ApiController extends AbstractController implements ApiController
 
     public function create(
         InputDtoInterface $input,
-        ?string $outputClass = null
+        OutputDtoInterface $outputClass
     ) : JsonResponse {
 
         $entity = (new EntityBuilder())->build(
@@ -98,7 +99,7 @@ abstract class ApiController extends AbstractController implements ApiController
     public function update(
         #[EntityParam] object $entity,
         InputDtoInterface $input,
-        ?string $outputClass = null
+        OutputDtoInterface $outputClass
     ) : JsonResponse {
         return new JsonResponse(1);
     }
@@ -106,7 +107,7 @@ abstract class ApiController extends AbstractController implements ApiController
     Public function delete(
         #[EntityParam] object $entity,
         InputDtoInterface $input,
-        ?string $outputClass = null
+        OutputDtoInterface $outputClass
     ) : JsonResponse {
         return new JsonResponse(1);
     }

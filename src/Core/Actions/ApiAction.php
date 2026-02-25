@@ -9,6 +9,9 @@ class ApiAction
      * @param string $name
      * @param array<int, string> $methods
      * @param string $path
+     * @param class-string $inputDto
+     * @param class-string $outputDto
+     * @param array<string, array<string, string>> $paramConverters 
      */
     public function __construct(
         public string $name,

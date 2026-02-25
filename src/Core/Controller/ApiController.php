@@ -11,8 +11,6 @@ use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class ApiController extends AbstractController implements ApiControllerInterface
@@ -27,7 +25,6 @@ abstract class ApiController extends AbstractController implements ApiController
     public function __construct(
         protected EntityManagerInterface $em,
         protected RequestStack $request,
-        protected SerializerInterface $serializer,
         protected ValidatorInterface $validator,
         protected Mapper $mapper,
     ) {}
@@ -63,7 +60,7 @@ abstract class ApiController extends AbstractController implements ApiController
         #[EntityParam] object $entity,
         InputDtoInterface $input,
         ?string $outputClass = null
-    ) : JsonResponse {
+    ) : JsonResponse {        
         return new JsonResponse([
             'data' => $this->mapper->fromEntity($entity, $outputClass)
         ]);

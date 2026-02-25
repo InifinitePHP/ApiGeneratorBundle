@@ -10,12 +10,20 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Serializer\SerializerInterface;
 
+use function PHPUnit\Framework\isObject;
+
 class InputDtoResolver implements ValueResolverInterface {
 
     public function __construct(
         protected SerializerInterface $serializer,
     ) {}
 
+    /**
+     * @param Request $request
+     * @param ArgumentMetadata $argument
+     * 
+     * @return array<int, InputDtoInterface>
+     */
     public function resolve(
         Request $request,
         ArgumentMetadata $argument
@@ -30,23 +38,28 @@ class InputDtoResolver implements ValueResolverInterface {
         }
 
         $data = $request->getContent() ?: '{}';
+
+        /** @var class-string $dtoClass */
         $dtoClass = $request->attributes->get('inputDtoClass');
 
         if(!$dtoClass) {
+            
             $defaultDto = new DefaultInputDto();
-            foreach (json_decode($data) as $key => $value) {
+            $data = (object) json_decode($data);
+
+            foreach (get_object_vars($data) as $key => $value) {
                 $defaultDto->$key = $value;
             }
             return [$defaultDto];
         }
 
-        
+        /** @var InputDtoInterface $inputDto */
         $inputDto = new $dtoClass();
         
         $this->serializer->deserialize($data, $dtoClass, 'json', [
             'object_to_populate' => $inputDto
         ]);
 
-        yield $inputDto;
+        return [$inputDto];
     }
 }

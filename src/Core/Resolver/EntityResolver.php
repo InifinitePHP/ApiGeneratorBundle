@@ -3,6 +3,7 @@
 namespace Rehark\ApiGeneratorBundle\Core\Resolver;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -15,6 +16,12 @@ class EntityResolver implements ValueResolverInterface {
         private EntityManagerInterface $em
     ) {}
 
+    /**
+     * @param Request $request
+     * @param ArgumentMetadata $argument
+     * 
+     * @return array<int, object>
+     */
     public function resolve(
         Request $request,
         ArgumentMetadata $argument
@@ -24,6 +31,7 @@ class EntityResolver implements ValueResolverInterface {
             return [];
         }
 
+        /** @var array<string, array<string, string>> $entities */
         $entities = $request->attributes->get('entities');
         $entity = null;
 
@@ -34,18 +42,23 @@ class EntityResolver implements ValueResolverInterface {
             }
 
             $attribute = $request->attributes->get($key);
-            $entity = $this->em
-                ->getRepository($value['class'])
-                ->findOneBy([
-                    $value['property'] => $attribute
-                ])
-            ;
+
+            /** @var class-string $class */
+            $class = $value['class'];
+            
+            /** @var EntityRepository<object> $repo */
+            $repo = $this->em->getRepository($class);
+
+            /** @var object|null $entity */
+            $entity = $repo->findOneBy([
+                $value['property'] => $attribute
+            ]);
         }
 
         if(!$entity) {
             throw new NotFoundHttpException();
         }
 
-        yield $entity;
+        return [$entity];
     }
 }

@@ -8,12 +8,15 @@ use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class InputDtoResolver implements ValueResolverInterface {
 
     public function __construct(
         protected SerializerInterface $serializer,
+        protected ValidatorInterface $validator,
     ) {}
 
     /**
@@ -27,10 +30,7 @@ class InputDtoResolver implements ValueResolverInterface {
         ArgumentMetadata $argument
     ): iterable {
 
-        if (
-            $argument->getType() !== InputDtoInterface::class
-            && $argument->getType() !== SearchDtoInterface::class
-        ) {
+        if (!is_a($argument->getType(), InputDtoInterface::class, true)) {
             return [];
         }
             
@@ -44,17 +44,6 @@ class InputDtoResolver implements ValueResolverInterface {
         /** @var class-string $dtoClass */
         $dtoClass = $request->attributes->get('inputDtoClass');
 
-        if(!$dtoClass) {
-            
-            $defaultDto = new DefaultInputDto();
-            $data = (object) json_decode($data);
-
-            foreach (get_object_vars($data) as $key => $value) {
-                $defaultDto->$key = $value;
-            }
-            return [$defaultDto];
-        }
-
         /** @var InputDtoInterface $inputDto */
         $inputDto = new $dtoClass();
         
@@ -62,6 +51,20 @@ class InputDtoResolver implements ValueResolverInterface {
             'object_to_populate' => $inputDto
         ]);
 
+        $this->checkDto($inputDto);
+
         return [$inputDto];
+    }
+
+    private function checkDto(InputDtoInterface $inputDto) {
+        $violations = $this->validator->validate($inputDto);
+
+        if (count($violations) > 0) {
+            $errors = [];
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()][] = $violation->getMessage();
+            }
+            throw new UnprocessableEntityHttpException();
+        }
     }
 }

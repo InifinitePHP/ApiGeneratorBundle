@@ -17,8 +17,8 @@ class ApiAction
         public string $name,
         public array $methods = ['GET'],
         public string $path = '',
-        public ?string $inputDto = null,
-        public ?string $outputDto = null,
+        public string $inputDto,
+        public string $outputDto,
         public array $paramConverters = []
     ) {}
 }

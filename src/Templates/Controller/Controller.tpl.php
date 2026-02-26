@@ -25,14 +25,14 @@ class {{NAME}}Controller extends ApiController
     {
         return [
             new ApiAction('search', ['POST'], '/search', Search{{NAME}}Input::class, {{NAME}}Output::class),
-            new ApiAction('show', ['GET'], '/{id}', null, {{NAME}}Output::class, [
+            new ApiAction('show', ['GET'], '/{id}', DefaultInputDto::class, {{NAME}}Output::class, [
                 'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
             ]),
             new ApiAction('create', ['POST'], '', Create{{NAME}}Input::class, {{NAME}}Output::class),
             new ApiAction('update', ['PATCH'], '/{id}', Update{{NAME}}Input::class, {{NAME}}Output::class, [
                 'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
             ]),
-            new ApiAction('delete', ['DELETE'], '/{id}', null, {{NAME}}Output::class, [
+            new ApiAction('delete', ['DELETE'], '/{id}', DefaultInputDto::class, {{NAME}}Output::class, [
                 'id' => ['class' => {{NAME}}::class, 'property' => 'id', 'param' => 'entity']
             ]),
         ];

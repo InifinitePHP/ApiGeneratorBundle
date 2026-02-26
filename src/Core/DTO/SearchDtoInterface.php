@@ -2,7 +2,7 @@
 
 namespace Rehark\ApiGeneratorBundle\Core\DTO;
 
-interface SearchDtoInterface {
+interface SearchDtoInterface extends InputDtoInterface {
     public function getIndex(): int;
     public function getLimit(): int;
 }

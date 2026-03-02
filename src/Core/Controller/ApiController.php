@@ -13,7 +13,6 @@ use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class ApiController extends AbstractController implements ApiControllerInterface
 {  
@@ -27,7 +26,6 @@ abstract class ApiController extends AbstractController implements ApiController
     public function __construct(
         protected EntityManagerInterface $em,
         protected RequestStack $request,
-        protected ValidatorInterface $validator,
         protected Mapper $mapper,
     ) {}
 
@@ -83,7 +81,7 @@ abstract class ApiController extends AbstractController implements ApiController
 
         try {
             $this->em->persist($entity);
-            // $this->em->flush();
+            $this->em->flush();
         } catch (Exception $e) {
             throw new Exception(
                 "persitante exception not implemented yet ! \n"

@@ -15,8 +15,8 @@ class ApiAction
      */
     public function __construct(
         public string $name,
-        public array $methods = ['GET'],
-        public string $path = '',
+        public array $methods,
+        public string $path,
         public string $inputDto,
         public string $outputDto,
         public array $paramConverters = []

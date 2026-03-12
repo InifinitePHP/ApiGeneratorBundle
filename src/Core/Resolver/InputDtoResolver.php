@@ -30,7 +30,7 @@ class InputDtoResolver implements ValueResolverInterface {
         ArgumentMetadata $argument
     ): iterable {
 
-        if (!is_a($argument->getType(), InputDtoInterface::class, true)) {
+        if ($argument->getType() && !is_a($argument->getType(), InputDtoInterface::class, true)) {
             return [];
         }
             
@@ -56,7 +56,7 @@ class InputDtoResolver implements ValueResolverInterface {
         return [$inputDto];
     }
 
-    private function checkDto(InputDtoInterface $inputDto) {
+    private function checkDto(InputDtoInterface $inputDto): void {
         $violations = $this->validator->validate($inputDto);
 
         if (count($violations) > 0) {

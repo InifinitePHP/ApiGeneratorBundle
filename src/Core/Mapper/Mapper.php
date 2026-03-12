@@ -20,7 +20,7 @@ class Mapper
 
         return array_map(
             function ($entity) use ($output) {
-                return $this->fromEntity($entity, $output);
+                return $this->fromEntity($entity, clone $output);
             },
             $entities
         );

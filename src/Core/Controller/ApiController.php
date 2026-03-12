@@ -9,6 +9,7 @@ use Rehark\ApiGeneratorBundle\Core\DTO\OutputDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
 use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
+use Rehark\ApiGeneratorBundle\Core\State\SmartEntityBuilder;
 use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -72,22 +73,13 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {
 
-        $entity = (new EntityBuilder())->build(
+        $entity = (new SmartEntityBuilder($this->em))->build(
             $this->getEntityClass(),
             $input,
-            $this->remainingDepth,
-            $this->maxArraySize,
         );
 
-        try {
-            $this->em->persist($entity);
-            $this->em->flush();
-        } catch (Exception $e) {
-            throw new Exception(
-                "persitante exception not implemented yet ! \n"
-                . $e->getMessage()
-            );
-        }
+        $this->em->persist($entity);
+        $this->em->flush();
 
         return new JsonResponse([
             'data' => $this->mapper->fromEntity($entity, $outputClass)
@@ -99,7 +91,19 @@ abstract class ApiController extends AbstractController implements ApiController
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
-        return new JsonResponse(1);
+                
+        $entity = (new SmartEntityBuilder($this->em))->build(
+            $this->getEntityClass(),
+            $input,
+            $entity
+        );
+
+        $this->em->persist($entity);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'data' => $this->mapper->fromEntity($entity, $outputClass)
+        ]);
     }
 
     Public function delete(

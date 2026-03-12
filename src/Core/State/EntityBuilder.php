@@ -5,6 +5,7 @@ namespace Rehark\ApiGeneratorBundle\Core\State;
 use Rehark\ApiGeneratorBundle\Core\Exception\EntityBuildingException;
 use Rehark\ApiGeneratorBundle\Core\Exception\MethodException;
 
+/** @deprecated */
 class EntityBuilder {
 
     /**

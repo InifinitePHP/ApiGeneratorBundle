@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class Policy {
+abstract class Policy {
 
     public function __construct(
         private EntityManagerInterface $em
@@ -14,7 +14,7 @@ class Policy {
 
     protected function isAuth(
         ?UserInterface $user,
-        Vote $vote
+        ?Vote $vote
     ): bool {
         if ($user === null) {
             $vote?->addReason('The user is not logged in.');

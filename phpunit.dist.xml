@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
@@ -22,13 +20,14 @@
         </testsuite>
     </testsuites>
 
-    <source ignoreSuppressionOfDeprecations="true"
-            ignoreIndirectDeprecations="true"
-            restrictNotices="true"
-            restrictWarnings="true"
+    <source
+            ignoreSuppressionOfDeprecations="false"
+            ignoreIndirectDeprecations="false"
+            restrictNotices="false"
+            restrictWarnings="false"
     >
         <include>
-            <directory>src</directory>
+            <directory suffix=".php">src</directory>
         </include>
 
         <exclude>
@@ -39,6 +38,13 @@
             <function>trigger_deprecation</function>
         </deprecationTrigger>
     </source>
+
+    <coverage 
+        includeUncoveredFiles="true"
+        pathCoverage="false"
+        ignoreDeprecatedCodeUnits="true"
+        disableCodeCoverageIgnore="true">
+    </coverage>
 
     <extensions>
     </extensions>

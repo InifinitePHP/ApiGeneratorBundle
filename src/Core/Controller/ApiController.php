@@ -20,6 +20,7 @@ abstract class ApiController extends AbstractController implements ApiController
 
     protected int $remainingDepth = 2;
     protected int $maxArraySize = 10;
+    protected string $voter;
 
     public static abstract function actions(): array;
     protected abstract function getEntityClass(): string;
@@ -34,6 +35,8 @@ abstract class ApiController extends AbstractController implements ApiController
         SearchDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
+
+        $this->denyAccessUnlessGranted($this->voter::LIST);
 
         /** @var class-string $class */
         $class = $this->getEntityClass();
@@ -52,7 +55,7 @@ abstract class ApiController extends AbstractController implements ApiController
 
         /** @var array<int, object> $entities */
         $entities = $qb->getQuery()->getResult();
-        
+
         return new JsonResponse([
             'data' => $this->mapper->fromArray($entities, $outputClass)
         ]);
@@ -62,7 +65,10 @@ abstract class ApiController extends AbstractController implements ApiController
         #[EntityParam] object $entity,
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
-    ) : JsonResponse {        
+    ) : JsonResponse {    
+        
+        $this->denyAccessUnlessGranted($this->voter::READ, $entity);
+
         return new JsonResponse([
             'data' => $this->mapper->fromEntity($entity, $outputClass)
         ]);
@@ -72,6 +78,8 @@ abstract class ApiController extends AbstractController implements ApiController
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
+
+        $this->denyAccessUnlessGranted($this->voter::CREATE);
 
         $entity = (new SmartEntityBuilder($this->em))->build(
             $this->getEntityClass(),
@@ -91,6 +99,8 @@ abstract class ApiController extends AbstractController implements ApiController
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
+
+        $this->denyAccessUnlessGranted($this->voter::UPDATE, $entity);
                 
         $entity = (new SmartEntityBuilder($this->em))->build(
             $this->getEntityClass(),
@@ -111,6 +121,8 @@ abstract class ApiController extends AbstractController implements ApiController
         InputDtoInterface $input,
         OutputDtoInterface $outputClass
     ) : JsonResponse {
+
+        $this->denyAccessUnlessGranted($this->voter::DELETE, $entity);
 
         $this->em->remove($entity);
         $this->em->flush();

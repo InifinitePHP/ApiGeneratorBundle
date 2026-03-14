@@ -4,17 +4,20 @@ namespace App\Api\Controller{{NAMESPACE}};
 
 use Rehark\ApiGeneratorBundle\Core\Actions\ApiAction;
 use Rehark\ApiGeneratorBundle\Core\Controller\ApiController;
+use Rehark\ApiGeneratorBundle\Core\DTO\DefaultInputDto;
 use App\Api\DTO{{NAMESPACE}}\Search{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Create{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Update{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\{{NAME}}Output;
-use \App\Entity\{{ENTITY}};
+use App\Api\Permission{{NAMESPACE}}\{{NAME}}Voter;
+use App\Entity\{{ENTITY}};
 
 class {{NAME}}Controller extends ApiController
 {
 
     public static string $version = 'v1';
     public static string $route = '{{ROUTE}}';
+    protected string $voter = {{NAME}}Voter::class;
 
     protected function getEntityClass(): string
     {

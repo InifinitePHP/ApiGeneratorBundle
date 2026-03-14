@@ -116,14 +116,19 @@ class MakeApiResourceCommand extends Command
     ): void {
 
         $templatesDir = __DIR__ . '/../Templates';
-        $templateTypes = ['Controller', 'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
+        $templateTypes = [
+            'Controller', 'Resource',
+            'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 
+            'PermissionQuery', 'Voter', 'Policy'
+        ];
 
         $rssParts = explode('/', $rssName);
         $rssBasename = array_pop($rssParts);
         $rssNamespace = $rssParts ? '\\' . implode('\\', $rssParts) : '';
         
         $entity = str_replace('/', '\\', $entityName);
-        $route = (new UnicodeString($rssBasename))->camel()->snake()->replace('_', '-')->lower()->toString();
+        $route = $this->getRoute($rssBasename);
+        $var = (new UnicodeString($rssBasename))->camel()->toString();
 
         $fileMap = $this->getFilesPathMap($projectDir, $rssNamespace, $rssBasename);
         $templateMap = $this->getTemplatesPathMap($templatesDir);
@@ -143,15 +148,39 @@ class MakeApiResourceCommand extends Command
                 throw new FileNotFoundException();
             }
 
-            $content = str_replace(['{{NAMESPACE}}', '{{NAME}}'], [$rssNamespace, $rssBasename], $content);
-
-            if ($type === 'Controller') {
-                $content = str_replace(['{{ROUTE}}', '{{ENTITY}}'], [$route, $entity], $content);
-            }
+            $content = str_replace(
+                [
+                    '{{NAMESPACE}}',
+                    '{{NAME}}',
+                    '{{ROUTE}}',
+                    '{{ENTITY}}',
+                    '{{VAR}}',
+                ], 
+                [
+                    $rssNamespace,
+                    $rssBasename,
+                    $route,
+                    $entity,
+                    $var
+                ], 
+                $content
+            );
 
             $filesystem->dumpFile($filePath, $content);
             $output->writeln("<info>Generated: $filePath</info>");
         }
+    }
+
+    private function getRoute(
+        string $rssBasename
+    ): string {
+        $route = (new UnicodeString($rssBasename))->snake()->replace('_', '-')->lower()->toString();
+
+        if(!str_ends_with('s', $rssBasename)) {
+            $route .= 's';
+        }
+
+        return $route;
     }
 
     /**
@@ -165,12 +194,14 @@ class MakeApiResourceCommand extends Command
     ): array {
         return [
             'Controller' => "$templatesDir/Controller/Controller.tpl.php",
+            'Resource' => "$templatesDir/Resource/Resource.tpl.php",
             'SearchInput' => "$templatesDir/DTO/SearchInput.tpl.php",
             'CreateInput' => "$templatesDir/DTO/CreateInput.tpl.php",
             'UpdateInput' => "$templatesDir/DTO/UpdateInput.tpl.php",
             'Output' => "$templatesDir/DTO/Output.tpl.php",
             'PermissionQuery' => "$templatesDir/Permission/PermissionQuery.tpl.php",
-            'Resource' => "$templatesDir/Resource/Resource.tpl.php",
+            'Voter' => "$templatesDir/Permission/Voter.tpl.php",
+            'Policy' => "$templatesDir/Permission/Policy.tpl.php",
         ];
     }
 
@@ -192,12 +223,14 @@ class MakeApiResourceCommand extends Command
 
         return [
             'Controller' => "$projectDir/src/Api/Controller{$namespace}/{$entity}Controller.php",
+            'Resource' => "$projectDir/src/Api/Resource{$namespace}/{$entity}Resource.php",
             'SearchInput' => "$projectDir/src/Api/DTO{$namespace}/Search{$entity}Input.php",
             'CreateInput' => "$projectDir/src/Api/DTO{$namespace}/Create{$entity}Input.php",
             'UpdateInput' => "$projectDir/src/Api/DTO{$namespace}/Update{$entity}Input.php",
             'Output' => "$projectDir/src/Api/DTO{$namespace}/{$entity}Output.php",
             'PermissionQuery' => "$projectDir/src/Api/Permission{$namespace}/{$entity}PermissionQuery.php",
-            'Resource' => "$projectDir/src/Api/Resource{$namespace}/{$entity}Resource.php",
+            'Voter' => "$projectDir/src/Api/Permission{$namespace}/{$entity}Voter.php",
+            'Policy' => "$projectDir/src/Api/Permission{$namespace}/{$entity}Policy.php",
         ];
     }
 }

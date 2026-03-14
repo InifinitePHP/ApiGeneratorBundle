@@ -29,7 +29,7 @@ class SmartEntityBuilder {
 
         $entity ??= new $class();
         $metadata = $this->em->getClassMetadata($class);
-
+        
         foreach((array) $data as $field => $value) {
 
             $temp_trace = $trace;

@@ -3,12 +3,10 @@
 namespace Rehark\ApiGeneratorBundle\Core\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\DTO\OutputDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Rehark\ApiGeneratorBundle\Core\Mapper\Mapper;
-use Rehark\ApiGeneratorBundle\Core\State\EntityBuilder;
 use Rehark\ApiGeneratorBundle\Core\State\SmartEntityBuilder;
 use Rehark\ApiGeneratorBundle\Core\Utils\EntityParam;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +22,8 @@ abstract class ApiController extends AbstractController implements ApiController
 
     public static abstract function actions(): array;
     protected abstract function getEntityClass(): string;
+    protected abstract function getVoter(): string;
+    protected abstract function getPermissionQuery(): string;
 
     public function __construct(
         protected EntityManagerInterface $em,
@@ -36,7 +36,9 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {
 
-        $this->denyAccessUnlessGranted($this->voter::LIST);
+        $this->denyAccessUnlessGranted(
+            $this->getVoter()::LIST
+        );
 
         /** @var class-string $class */
         $class = $this->getEntityClass();
@@ -53,6 +55,11 @@ abstract class ApiController extends AbstractController implements ApiController
             ->setFirstResult($startAt)
         ;
 
+        // apply permission query !!!
+        $permissionQueryClass = $this->getPermissionQuery();        
+        $permissionQuery = new $permissionQueryClass();
+        $permissionQuery->apply($qb, $this->getUser());
+
         /** @var array<int, object> $entities */
         $entities = $qb->getQuery()->getResult();
 
@@ -67,7 +74,10 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {    
         
-        $this->denyAccessUnlessGranted($this->voter::READ, $entity);
+        $this->denyAccessUnlessGranted(
+            $this->getVoter()::READ,
+            $entity
+        );
 
         return new JsonResponse([
             'data' => $this->mapper->fromEntity($entity, $outputClass)
@@ -79,7 +89,9 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {
 
-        $this->denyAccessUnlessGranted($this->voter::CREATE);
+        $this->denyAccessUnlessGranted(
+            $this->getVoter()::CREATE
+        );
 
         $entity = (new SmartEntityBuilder($this->em))->build(
             $this->getEntityClass(),
@@ -100,7 +112,10 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {
 
-        $this->denyAccessUnlessGranted($this->voter::UPDATE, $entity);
+        $this->denyAccessUnlessGranted(
+            $this->getVoter()::UPDATE,
+            $entity
+        );
                 
         $entity = (new SmartEntityBuilder($this->em))->build(
             $this->getEntityClass(),
@@ -122,7 +137,10 @@ abstract class ApiController extends AbstractController implements ApiController
         OutputDtoInterface $outputClass
     ) : JsonResponse {
 
-        $this->denyAccessUnlessGranted($this->voter::DELETE, $entity);
+        $this->denyAccessUnlessGranted(
+            $this->getVoter()::DELETE,
+            $entity
+        );
 
         $this->em->remove($entity);
         $this->em->flush();

@@ -10,6 +10,7 @@ use App\Api\DTO{{NAMESPACE}}\Create{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\Update{{NAME}}Input;
 use App\Api\DTO{{NAMESPACE}}\{{NAME}}Output;
 use App\Api\Permission{{NAMESPACE}}\{{NAME}}Voter;
+use App\Api\Permission{{NAMESPACE}}\{{NAME}}PermissionQuery;
 use App\Entity\{{ENTITY}};
 
 class {{NAME}}Controller extends ApiController
@@ -17,11 +18,20 @@ class {{NAME}}Controller extends ApiController
 
     public static string $version = 'v1';
     public static string $route = '{{ROUTE}}';
-    protected string $voter = {{NAME}}Voter::class;
 
     protected function getEntityClass(): string
     {
         return {{NAME}}::class;
+    }
+
+    protected function getVoter(): string
+    {
+        return {{NAME}}Voter::class;
+    }
+
+    protected function getPermissionQuery(): string
+    {
+        return {{NAME}}PermissionQuery::class;
     }
 
     public static function actions(): array

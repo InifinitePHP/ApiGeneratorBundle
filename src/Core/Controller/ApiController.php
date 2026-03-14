@@ -18,7 +18,6 @@ abstract class ApiController extends AbstractController implements ApiController
 
     protected int $remainingDepth = 2;
     protected int $maxArraySize = 10;
-    protected string $voter;
 
     public static abstract function actions(): array;
     protected abstract function getEntityClass(): string;
@@ -55,7 +54,6 @@ abstract class ApiController extends AbstractController implements ApiController
             ->setFirstResult($startAt)
         ;
 
-        // apply permission query !!!
         $permissionQueryClass = $this->getPermissionQuery();        
         $permissionQuery = new $permissionQueryClass();
         $permissionQuery->apply($qb, $this->getUser());

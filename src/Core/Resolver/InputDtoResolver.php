@@ -2,9 +2,7 @@
 
 namespace Rehark\ApiGeneratorBundle\Core\Resolver;
 
-use Rehark\ApiGeneratorBundle\Core\DTO\DefaultInputDto;
 use Rehark\ApiGeneratorBundle\Core\DTO\InputDtoInterface;
-use Rehark\ApiGeneratorBundle\Core\DTO\SearchDtoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

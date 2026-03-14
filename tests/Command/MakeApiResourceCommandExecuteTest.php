@@ -2,12 +2,15 @@
 
 namespace Rehark\ApiGeneratorBundle\Tests\Command;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Rehark\ApiGeneratorBundle\Command\MakeApiResourceCommand;
+use Rehark\ApiGeneratorBundle\Tests\Utils\PrivateAccessor;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\String\UnicodeString;
 
 class MakeApiResourceCommandExecuteTest extends TestCase
 {
@@ -21,7 +24,7 @@ class MakeApiResourceCommandExecuteTest extends TestCase
         $this->tmpDir = sys_get_temp_dir() . '/api_generator_test_' . uniqid();
         $this->filesystem->mkdir($this->tmpDir . '/src/Entity');
 
-        $this->kernel = $this->createMock(KernelInterface::class);
+        $this->kernel = $this->createStub(KernelInterface::class);
         $this->kernel->method('getProjectDir')->willReturn($this->tmpDir);
     }
 
@@ -33,7 +36,12 @@ class MakeApiResourceCommandExecuteTest extends TestCase
     private function createTemplates(): string
     {
         $templatesDir = $this->tmpDir . '/Templates';
-        $types = ['Controller', 'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 'PermissionQuery', 'Resource'];
+
+        $types = [
+            'Controller', 'Resource',
+            'SearchInput', 'CreateInput', 'UpdateInput', 'Output', 
+            'PermissionQuery', 'Voter', 'Policy'
+        ];
 
         foreach ($types as $type) {
             $path = match($type) {
@@ -43,6 +51,8 @@ class MakeApiResourceCommandExecuteTest extends TestCase
                 'UpdateInput' =>  "$templatesDir/DTO/UpdateInput.tpl.php",
                 'Output' => "$templatesDir/DTO/Output.tpl.php",
                 'PermissionQuery' => "$templatesDir/Permission/PermissionQuery.tpl.php",
+                'Voter' => "$templatesDir/Permission/Voter.tpl.php",
+                'Policy' => "$templatesDir/Permission/Policy.tpl.php",
                 'Resource' => "$templatesDir/Resource/Resource.tpl.php",
             };
             $this->filesystem->mkdir(dirname($path));
@@ -61,6 +71,8 @@ class MakeApiResourceCommandExecuteTest extends TestCase
             "$this->tmpDir/src/Api/DTO/UpdateUserInput.php",
             "$this->tmpDir/src/Api/DTO/UserOutput.php",
             "$this->tmpDir/src/Api/Permission/UserPermissionQuery.php",
+            "$this->tmpDir/src/Api/Permission/UserVoter.php",
+            "$this->tmpDir/src/Api/Permission/UserPolicy.php",
             "$this->tmpDir/src/Api/Resource/UserResource.php",
         ];
 
@@ -102,5 +114,28 @@ class MakeApiResourceCommandExecuteTest extends TestCase
         $this->assertStringContainsString("✔ Resource $entityName generated successfully", $output);
 
         $this->assertFilesGenerated('User');
+    }
+
+    /**
+     * @param string $input
+     * @param string $expected
+     */
+    #[DataProvider('provideGetRouteCases')]
+    public function testGetRoute(string $input, string $expected): void
+    {
+        $method = PrivateAccessor::getMethod(MakeApiResourceCommand::class, 'getRoute');
+        $command = new MakeApiResourceCommand($this->kernel);
+
+        $route = $method->invoke($command, $input);
+
+        self::assertSame($expected, $route);
+    }
+
+    public static function provideGetRouteCases(): iterable
+    {
+        yield 'simple camelCase' => ['UserProfile', 'user-profiles'];
+        yield 'déjà snake'       => ['user_profile', 'user-profiles'];
+        yield 'avec S final'     => ['UsersList', 'users-lists'];
+        yield 'tout minuscule'   => ['order', 'orders'];
     }
 }

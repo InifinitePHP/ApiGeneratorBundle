@@ -21,7 +21,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         $this->tmpDir = sys_get_temp_dir() . '/api_generator_test_' . uniqid();
         $this->filesystem->mkdir($this->tmpDir . '/src/Entity');
 
-        $this->kernel = $this->createMock(KernelInterface::class);
+        $this->kernel = $this->createStub(KernelInterface::class);
         $this->kernel->method('getProjectDir')->willReturn($this->tmpDir);
     }
 
@@ -55,7 +55,6 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
         bool $force = false
     ): mixed {
         $method = PrivateAccessor::getMethod(MakeApiResourceCommand::class, 'generateFiles');
-        $method->setAccessible(true);
 
         return $method->invoke(
             $command,
@@ -81,6 +80,7 @@ class MakeApiResourceCommandGenerateFilesTest extends TestCase
 
         $content = file_get_contents($file);
         $this->assertSame('OriginalContent', $content);
+        $this->assertTrue(true);
     }
 
     public function testGenerateFilesCreatesAllFiles(): void

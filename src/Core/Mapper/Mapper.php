@@ -2,6 +2,8 @@
 
 namespace Rehark\ApiGeneratorBundle\Core\Mapper;
 
+use ReflectionClass;
+use ReflectionProperty;
 use Rehark\ApiGeneratorBundle\Core\DTO\OutputDtoInterface;
 
 class Mapper
@@ -37,7 +39,11 @@ class Mapper
         OutputDtoInterface $output
     ): object {
 
-        foreach (get_object_vars($output) as $key => $value) {
+        $reflection = new ReflectionClass($output);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+
+        foreach ($properties as $value) {
+            $key = $value->name;
             $entityMethod = 'get' . ucfirst($key);
             $output->$key = $entity->$entityMethod();
         }
